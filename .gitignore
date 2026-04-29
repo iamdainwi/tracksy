@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# ============================================================================
+# Dependencies
+# ============================================================================
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -9,33 +11,88 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.pnpm-store/
 
-# testing
-/coverage
+# ============================================================================
+# Environment & Configuration
+# ============================================================================
+.env
+.env.local
+.env.*.local
+.env.production.local
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# ============================================================================
+# IDE & Editor Files
+# ============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-*.pem
+.AppleDouble
+.LSOverride
+*.sublime-workspace
+*.sublime-project
+.vim/
+.nvimrc
+*.iml
 
-# debug
+# ============================================================================
+# Build & Output
+# ============================================================================
+# Next.js
+.next/
+out/
+dist/
+build/
+
+# Turbo
+.turbo/
+
+# Production builds
+*.tsbuildinfo
+next-env.d.ts
+
+# ============================================================================
+# Testing
+# ============================================================================
+coverage/
+.nyc_output/
+
+# ============================================================================
+# Logs & Debug
+# ============================================================================
 npm-debug.log*
+npm-error.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+pnpm-error.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ============================================================================
+# OS & Temporary Files
+# ============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.pem
 
-# vercel
-.vercel
+# ============================================================================
+# IDE-specific directories
+# ============================================================================
+.vscode-test/
+.eslintcache
+.stylelintcache
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ============================================================================
+# Runtime & Misc
+# ============================================================================
+*.pid
+*.seed
+*.pid.lock
