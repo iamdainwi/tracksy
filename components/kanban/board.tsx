@@ -18,7 +18,7 @@ import { KanbanColumn } from './column'
 import { KanbanCardOverlay } from './card'
 import { STATUSES } from '@/lib/status'
 import type { Application, ApplicationStatus } from '@/lib/db/schema'
-import { updateApplicationStatusAction } from '@/app/(dashboard)/applications/actions'
+import { updateApplicationStatusAction } from '@/app/(dashboard)/dashboard/applications/actions'
 
 function groupByStatus(apps: Application[]) {
   const map = Object.fromEntries(
