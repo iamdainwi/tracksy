@@ -214,11 +214,11 @@ export default function Page() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <a href="#" className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+            <a href="/sign-in" className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
               Sign in
             </a>
             <a
-              href="#"
+              href="/sign-up"
               className="text-sm px-3 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors font-medium"
             >
               Start tracking
@@ -247,8 +247,8 @@ export default function Page() {
               </a>
             ))}
             <div className="flex items-center gap-3 pt-3 border-t border-zinc-200/60 dark:border-zinc-800/60">
-              <a href="#" className="text-sm text-zinc-500 dark:text-zinc-400">Sign in</a>
-              <a href="#" className="text-sm px-3 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium">
+              <a href="/sign-in" className="text-sm text-zinc-500 dark:text-zinc-400">Sign in</a>
+              <a href="/sign-up" className="text-sm px-3 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium">
                 Start tracking
               </a>
             </div>
@@ -274,7 +274,7 @@ export default function Page() {
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="#"
+              href="/sign-up"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-sm font-medium transition-colors"
             >
               Start free <ArrowRight01Icon className="w-3.5 h-3.5" aria-hidden />
@@ -551,7 +551,7 @@ export default function Page() {
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-5">for casual job searches</p>
 
               <a
-                href="#"
+                href="/sign-up"
                 className="block w-full text-center px-4 py-2 rounded-md border border-zinc-200 dark:border-zinc-700 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors mb-6"
               >
                 Get started
@@ -587,7 +587,7 @@ export default function Page() {
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-5">for serious job seekers</p>
 
               <a
-                href="#"
+                href="/sign-up"
                 className="block w-full text-center px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors mb-6"
               >
                 Start free trial →
