@@ -110,7 +110,7 @@ export function ApplicationForm({ action, defaultValues, submitLabel = 'Save' }:
               <SelectValue placeholder="Select source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="oncampus">On Campus</SelectItem>
+              <SelectItem value="on_campus">On Campus</SelectItem>
               <SelectItem value="linkedin">LinkedIn</SelectItem>
               <SelectItem value="referral">Referral</SelectItem>
               <SelectItem value="direct">Direct</SelectItem>

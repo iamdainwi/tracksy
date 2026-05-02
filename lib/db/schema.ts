@@ -24,6 +24,7 @@ export const applicationSource = pgEnum('application_source', [
   'direct',
   'job_board',
   'recruiter',
+  'on_campus',
   'other',
 ])
 

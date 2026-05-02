@@ -29,21 +29,19 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
         {/* Scrollable tab strip */}
         <div className="border-b bg-background sticky top-0 z-10">
           <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <TabsList className="inline-flex h-auto w-max rounded-none bg-transparent p-0 gap-0">
+            <TabsList className="inline-flex h-auto w-max rounded-none bg-transparent px-3 py-2 gap-1">
               {STATUSES.map((status) => {
                 const count = grouped[status].length
                 return (
                   <TabsTrigger
                     key={status}
                     value={status}
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 gap-2 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground shrink-0"
+                    className="rounded-lg border-none bg-transparent data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-none data-[state=active]:font-medium px-3 py-1.5 gap-1.5 text-sm text-muted-foreground hover:text-foreground shrink-0 transition-all duration-150"
                   >
-                    <span className="flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_CONFIG[status].dot}`} />
-                      {STATUS_CONFIG[status].label}
-                    </span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_CONFIG[status].dot}`} />
+                    {STATUS_CONFIG[status].label}
                     {count > 0 && (
-                      <span className="text-xs tabular-nums bg-muted text-muted-foreground rounded-full px-1.5 py-px leading-none">
+                      <span className="tabular-nums text-xs opacity-60 leading-none">
                         {count}
                       </span>
                     )}

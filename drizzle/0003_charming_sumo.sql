@@ -1,0 +1,1 @@
+ALTER TYPE "public"."application_source" ADD VALUE 'on_campus' BEFORE 'other';
