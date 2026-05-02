@@ -5,6 +5,7 @@ import {
   getUserApplications,
   createApplication,
 } from '@/lib/db/queries/applications'
+import { rateLimit } from '@/lib/rate-limit'
 
 const createSchema = z.object({
   company: z.string().min(1),
@@ -24,6 +25,14 @@ export async function GET(request: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const rl = rateLimit(`GET:applications:${userId}`, { max: 120, windowMs: 60_000 })
+  if (!rl.ok) {
+    return Response.json({ error: 'Too many requests' }, {
+      status: 429,
+      headers: { 'Retry-After': String(rl.retryAfter) }
+    })
+  }
+
   const { searchParams } = request.nextUrl
   const statusParam = searchParams.get('status')
   const validStatuses = ['applied', 'screening', 'interview', 'offer', 'rejected', 'ghosted'] as const
@@ -42,6 +51,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const rl = rateLimit(`POST:applications:${userId}`, { max: 30, windowMs: 60_000 })
+  if (!rl.ok) {
+    return Response.json({ error: 'Too many requests' }, {
+      status: 429,
+      headers: { 'Retry-After': String(rl.retryAfter) }
+    })
+  }
 
   const body = await request.json()
   const parsed = createSchema.safeParse(body)

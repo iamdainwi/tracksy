@@ -9,7 +9,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { ApplicationCard } from './application-card'
 import { STATUS_CONFIG, STATUSES } from '@/lib/status'
 import type { Application, ApplicationStatus } from '@/lib/db/schema'
@@ -29,7 +28,7 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
       <Tabs defaultValue="applied" className="flex flex-col flex-1 min-h-0">
         {/* Scrollable tab strip */}
         <div className="border-b bg-background sticky top-0 z-10">
-          <ScrollArea className="w-full overflow-x-auto">
+          <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <TabsList className="inline-flex h-auto w-max rounded-none bg-transparent p-0 gap-0">
               {STATUSES.map((status) => {
                 const count = grouped[status].length
@@ -37,7 +36,7 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
                   <TabsTrigger
                     key={status}
                     value={status}
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 gap-2 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 gap-2 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground shrink-0"
                   >
                     <span className="flex items-center gap-1.5">
                       <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_CONFIG[status].dot}`} />
@@ -52,7 +51,7 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
                 )
               })}
             </TabsList>
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Tab content */}
@@ -62,7 +61,7 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
             value={status}
             className="flex-1 mt-0 outline-none"
           >
-            <ScrollArea className="h-[calc(100svh-11rem)]">
+            <div className="overflow-y-auto h-[calc(100svh-11rem)]">
               <div className="p-4 space-y-2">
                 {grouped[status].length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -84,7 +83,7 @@ export function MobileListView({ apps, onStatusChange }: MobileListViewProps) {
                   ))
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </TabsContent>
         ))}
       </Tabs>

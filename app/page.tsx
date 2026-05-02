@@ -1,28 +1,21 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Menu11Icon, Cancel01Icon, ArrowRight01Icon } from 'hugeicons-react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Menu01Icon,
+  Cancel01Icon,
+  ArrowRight01Icon,
+  Tick01Icon,
+} from '@hugeicons/core-free-icons'
 
 type ApplicationStatus = 'applied' | 'screening' | 'interview' | 'offer' | 'rejected'
-
-// function useScrolled(threshold = 20) {
-//   const [scrolled, setScrolled] = useState(false)
-//   useEffect(() => {
-//     const handler = () => setScrolled(window.scrollY > threshold)
-//     window.addEventListener('scroll', handler, { passive: true })
-//     return () => window.removeEventListener('scroll', handler)
-//   }, [threshold])
-//   return scrolled
-// }
 
 function useScrolled(threshold = 20) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > threshold)
-    
-    // Check immediately on mount
-    handler() 
-    
+    handler()
     window.addEventListener('scroll', handler, { passive: true })
     return () => window.removeEventListener('scroll', handler)
   }, [threshold])
@@ -58,7 +51,15 @@ function FadeIn({ children, className = '', delay = 0 }: { children: React.React
   )
 }
 
-const STATUS_STYLES: Record<ApplicationStatus, string> = {
+const STATUS_DOT: Record<ApplicationStatus, string> = {
+  applied:   'bg-blue-500',
+  screening: 'bg-violet-500',
+  interview: 'bg-amber-500',
+  offer:     'bg-emerald-500',
+  rejected:  'bg-zinc-400',
+}
+
+const STATUS_BADGE: Record<ApplicationStatus, string> = {
   applied:   'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800/50',
   screening: 'bg-violet-50 text-violet-700 border-violet-200/80 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800/50',
   interview: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50',
@@ -66,10 +67,16 @@ const STATUS_STYLES: Record<ApplicationStatus, string> = {
   rejected:  'bg-zinc-100 text-zinc-500 border-zinc-200/80 dark:bg-zinc-800/40 dark:text-zinc-500 dark:border-zinc-700/50',
 }
 
-function Pill({ status }: { status: ApplicationStatus }) {
+const STATUS_LABELS: Record<ApplicationStatus, string> = {
+  applied: 'Applied', screening: 'Screening', interview: 'Interview',
+  offer: 'Offer', rejected: 'Rejected',
+}
+
+function StatusBadge({ status }: { status: ApplicationStatus }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded border text-xs font-mono font-medium ${STATUS_STYLES[status]}`}>
-      {status}
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-xs font-medium ${STATUS_BADGE[status]}`}>
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[status]}`} aria-hidden />
+      {STATUS_LABELS[status]}
     </span>
   )
 }
@@ -86,10 +93,9 @@ function FAQRow({ q, a }: { q: string; a: string }) {
         <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors">
           {q}
         </span>
-        {/* <ChevronDoubleCloseFreeIcons
-          aria-hidden
-          className={`w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-600 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        /> */}
+        <span aria-hidden className={`text-zinc-400 dark:text-zinc-500 transition-transform duration-200 text-xs select-none shrink-0 ${open ? 'rotate-180' : ''}`}>
+          ▾
+        </span>
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-48 pb-5' : 'max-h-0'}`}>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{a}</p>
@@ -98,44 +104,30 @@ function FAQRow({ q, a }: { q: string; a: string }) {
   )
 }
 
+// ── Data ──────────────────────────────────────────────────────────────────
+
 const HERO_APPS: { company: string; role: string; status: ApplicationStatus; applied: string; next: string }[] = [
-  { company: 'Stripe',    role: 'Software Engineer, Payments',    status: 'interview', applied: '2025-01-14', next: 'Technical interview Jan 28' },
-  { company: 'Vercel',    role: 'Frontend Engineer',              status: 'screening', applied: '2025-01-16', next: 'HR screen Jan 22' },
-  { company: 'Linear',    role: 'Product Engineer',               status: 'applied',   applied: '2025-01-18', next: 'Follow up Feb 1' },
-  { company: 'Anthropic', role: 'Software Engineer, Safety',      status: 'offer',     applied: '2025-01-08', next: 'Deadline Feb 3' },
-  { company: 'Datadog',   role: 'Backend Engineer',               status: 'rejected',  applied: '2025-01-10', next: '—' },
-  { company: 'Notion',    role: 'Full Stack Engineer',            status: 'applied',   applied: '2025-01-19', next: 'Follow up Jan 26' },
+  { company: 'Stripe',    role: 'Software Engineer, Payments',  status: 'interview', applied: 'Jan 14', next: 'Technical interview · Jan 28' },
+  { company: 'Vercel',    role: 'Frontend Engineer',            status: 'screening', applied: 'Jan 16', next: 'HR screen · Jan 22' },
+  { company: 'Linear',    role: 'Product Engineer',             status: 'applied',   applied: 'Jan 18', next: 'Follow up · Feb 1' },
+  { company: 'Anthropic', role: 'Software Engineer, Safety',    status: 'offer',     applied: 'Jan 8',  next: 'Deadline · Feb 3' },
+  { company: 'Datadog',   role: 'Backend Engineer',             status: 'rejected',  applied: 'Jan 10', next: '—' },
+  { company: 'Notion',    role: 'Full Stack Engineer',          status: 'applied',   applied: 'Jan 19', next: 'Follow up · Jan 26' },
 ]
 
-const KANBAN_COLS = [
-  {
-    label: 'Applied', dot: 'bg-blue-500',
-    cards: [
-      { company: 'Notion', role: 'Full Stack Eng.', date: 'Jan 19' },
-      { company: 'Linear', role: 'Product Eng.',    date: 'Jan 18' },
-      { company: 'Figma',  role: 'SWE, Editor',    date: 'Jan 17' },
-    ],
-  },
-  {
-    label: 'Screening', dot: 'bg-violet-500',
-    cards: [
-      { company: 'Vercel', role: 'Frontend Eng.', date: 'Jan 16' },
-      { company: 'Loom',   role: 'Backend Eng.',  date: 'Jan 12' },
-    ],
-  },
-  {
-    label: 'Interview', dot: 'bg-amber-500',
-    cards: [
-      { company: 'Stripe', role: 'Payments SWE', date: 'Jan 14' },
-      { company: 'Retool', role: 'SWE',          date: 'Jan 11' },
-    ],
-  },
-  {
-    label: 'Offer', dot: 'bg-emerald-500',
-    cards: [
-      { company: 'Anthropic', role: 'Safety Eng.', date: 'Jan 8' },
-    ],
-  },
+const TABLE_PREVIEW_APPS: { company: string; role: string; status: ApplicationStatus; applied: string; next: string | null }[] = [
+  { company: 'Stripe',  role: 'SWE, Payments',    status: 'interview', applied: 'Jan 14', next: 'Technical · Jan 28' },
+  { company: 'Vercel',  role: 'Frontend Eng.',    status: 'screening', applied: 'Jan 16', next: 'HR screen · Jan 22' },
+  { company: 'Linear',  role: 'Product Eng.',     status: 'applied',   applied: 'Jan 18', next: 'Follow up · Feb 1' },
+  { company: 'Notion',  role: 'Full Stack Eng.',  status: 'applied',   applied: 'Jan 19', next: null },
+]
+
+const PIPELINE_STATUSES: { status: ApplicationStatus; count: number }[] = [
+  { status: 'applied', count: 24 },
+  { status: 'screening', count: 8 },
+  { status: 'interview', count: 4 },
+  { status: 'offer', count: 1 },
+  { status: 'rejected', count: 10 },
 ]
 
 const CHART_WEEKS = [
@@ -164,7 +156,7 @@ const FAQ_ITEMS = [
     a: 'Fully. The tracker is role-agnostic. Default pipeline stages work for any industry. You can rename stages and add custom fields to fit your search.',
   },
   {
-    q: 'What happens to my data if I Cancel01Icon Pro?',
+    q: 'What happens to my data if I cancel Pro?',
     a: 'You keep everything. Downgrading to Free doesn\'t delete data — you just lose Pro features. Export a full JSON or CSV backup any time from Settings → Export.',
   },
   {
@@ -177,9 +169,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is there a referral tracker?',
-    a: 'Yes. Tag any application with a referrer and track whether referred applications convert better. The analytics page breaks this out separately so you can see if your referral network is actually helping.',
+    a: 'Yes. Tag any application with a referrer and track whether referred applications convert better. The analytics page breaks this out separately.',
   },
 ]
+
+// ── Page ──────────────────────────────────────────────────────────────────
 
 export default function Page() {
   const scrolled = useScrolled()
@@ -188,21 +182,19 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans">
 
-      {/* ── Nav ── */}
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200/60 dark:border-zinc-800/60'
-            : ''
-        }`}
-      >
+      {/* Nav */}
+      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200/60 dark:border-zinc-800/60'
+          : ''
+      }`}>
         <nav className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-medium tracking-tight text-zinc-900 dark:text-zinc-100 select-none">
+          <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 select-none">
             Tracksy
           </span>
 
           <div className="hidden md:flex items-center gap-7">
-            {['Features', 'Pricing', 'Changelog', 'Docs'].map(link => (
+            {['Features', 'Pricing', 'FAQ'].map(link => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -219,7 +211,7 @@ export default function Page() {
             </a>
             <a
               href="/sign-up"
-              className="text-sm px-3 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors font-medium"
+              className="text-sm px-3.5 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors font-medium"
             >
               Start tracking
             </a>
@@ -230,13 +222,16 @@ export default function Page() {
             onClick={() => setMenuOpen(v => !v)}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           >
-            {menuOpen ? <Cancel01Icon className="w-5 h-5" aria-hidden /> : <Menu11Icon className="w-5 h-5" aria-hidden />}
+            {menuOpen
+              ? <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
+              : <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={2} />
+            }
           </button>
         </nav>
 
         {menuOpen && (
           <div className="md:hidden border-t border-zinc-200/60 dark:border-zinc-800/60 bg-white dark:bg-zinc-950 px-6 py-5 flex flex-col gap-4">
-            {['Features', 'Pricing', 'Changelog', 'Docs'].map(link => (
+            {['Features', 'Pricing', 'FAQ'].map(link => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -248,7 +243,7 @@ export default function Page() {
             ))}
             <div className="flex items-center gap-3 pt-3 border-t border-zinc-200/60 dark:border-zinc-800/60">
               <a href="/sign-in" className="text-sm text-zinc-500 dark:text-zinc-400">Sign in</a>
-              <a href="/sign-up" className="text-sm px-3 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium">
+              <a href="/sign-up" className="text-sm px-3.5 py-1.5 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium">
                 Start tracking
               </a>
             </div>
@@ -256,7 +251,7 @@ export default function Page() {
         )}
       </header>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section className="pt-28 pb-20 md:pt-36 md:pb-28 max-w-6xl mx-auto px-6">
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 text-xs font-mono text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/60 rounded-full px-3 py-1 mb-7">
@@ -269,43 +264,51 @@ export default function Page() {
           </h1>
 
           <p className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 max-w-xl">
-            A focused tracker for the 100+ applications you'll send this season — with deadline reminders, status pipelines, and response analytics.
+            A focused tracker for the 100+ applications you&apos;ll send this season — with deadline reminders, status pipelines, and response analytics.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
             <a
               href="/sign-up"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-sm font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-sm font-medium transition-colors shadow-sm"
             >
-              Start free <ArrowRight01Icon className="w-3.5 h-3.5" aria-hidden />
+              Start free
+              <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
             </a>
             <a
               href="#features"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900/40 text-sm font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-900/40 text-sm font-medium transition-colors"
             >
-              See it in action
+              See how it works
             </a>
           </div>
         </div>
 
-        {/* Product shot — application table */}
+        {/* Product shot */}
         <div className="mt-14 overflow-x-auto rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-sm">
           <table className="w-full min-w-[680px] text-sm border-collapse">
             <thead>
               <tr className="bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200/60 dark:border-zinc-800/60">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-10" />
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Company</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Role</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider font-mono">Applied</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider font-mono">Applied ↓</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Next step</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 bg-white dark:bg-zinc-950">
               {HERO_APPS.map((app, i) => (
-                <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors cursor-default">
-                  <td className="px-4 py-3 font-medium text-zinc-800 dark:text-zinc-200">{app.company}</td>
-                  <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400 max-w-52 truncate">{app.role}</td>
-                  <td className="px-4 py-3"><Pill status={app.status} /></td>
+                <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors cursor-default group">
+                  <td className="px-4 py-3">
+                    <div className="w-7 h-7 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-semibold text-zinc-500 dark:text-zinc-400 select-none">
+                      {app.company.charAt(0)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-zinc-800 dark:text-zinc-200 text-sm">{app.company}</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 max-w-48 truncate">{app.role}</p>
+                  </td>
+                  <td className="px-4 py-3"><StatusBadge status={app.status} /></td>
                   <td className="px-4 py-3 text-zinc-400 dark:text-zinc-500 font-mono text-xs">{app.applied}</td>
                   <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400 text-xs">{app.next}</td>
                 </tr>
@@ -314,29 +317,31 @@ export default function Page() {
           </table>
           <div className="px-4 py-2.5 border-t border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/60 flex items-center justify-between">
             <span className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">6 of 47 applications</span>
-            <button className="text-xs text-amber-600 dark:text-amber-500 font-medium hover:underline underline-offset-2 transition-colors">
+            <a href="/sign-up" className="text-xs text-amber-600 dark:text-amber-500 font-medium hover:underline underline-offset-2 transition-colors">
               View all →
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
-      {/* ── Why this exists ── */}
+      {/* Why this exists */}
       <section className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-24">
         <FadeIn className="max-w-6xl mx-auto px-6">
-          <div className="max-w-2xl">
-            <p className="text-xs font-mono uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-6">
-              Why Tracksy
-            </p>
-            <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
-              Spreadsheets fall apart by week two. Notion is three hours of setup for a tracker you'll maintain for four months. You forget which companies ghosted you. Deadlines slip. You can't tell if your resume is working or if it's a numbers game. There's no good middle ground between a sticky note and a full ATS.
-            </p>
-            <ul className="space-y-3.5" role="list">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-6">
+                Why Tracksy
+              </p>
+              <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
+                Spreadsheets fall apart by week two. Notion takes three hours of setup for a tracker you&apos;ll maintain for four months. You forget which companies ghosted you. Deadlines slip. You can&apos;t tell if your resume is working or if it&apos;s just a numbers game.
+              </p>
+            </div>
+            <ul className="space-y-3.5 pt-0 md:pt-12" role="list">
               {[
                 'Log an application in under 10 seconds',
                 'See exactly which stage every application is in',
                 'Get reminded 48 hours before a follow-up is due',
-                'Know your response rate by role type and company size',
+                'Know your response rate by role type and source',
               ].map(item => (
                 <li key={item} className="flex items-start gap-3 text-sm text-zinc-700 dark:text-zinc-300">
                   <span className="text-amber-500 font-mono mt-0.5 shrink-0" aria-hidden>▸</span>
@@ -348,11 +353,11 @@ export default function Page() {
         </FadeIn>
       </section>
 
-      {/* ── Feature showcase ── */}
+      {/* Features */}
       <section id="features" className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-24">
         <div className="max-w-6xl mx-auto px-6 space-y-28 md:space-y-36">
 
-          {/* F1 — Pipeline */}
+          {/* F1 — Pipeline table */}
           <FadeIn>
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
               <div>
@@ -363,34 +368,73 @@ export default function Page() {
                   Know where every application stands.
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  A kanban board built for job searching, not sprint planning. Move cards as you hear back. Nothing falls through.
+                  A dense table built for scanning, not a kanban board built for sprints. Sort by applied date, filter by stage, and see every detail at a glance. Nothing falls through the cracks.
                 </p>
               </div>
 
-              {/* Kanban mockup */}
-              <div className="rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/40 p-4 overflow-x-auto">
-                <div className="flex gap-3 min-w-[440px]">
-                  {KANBAN_COLS.map(col => (
-                    <div key={col.label} className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-3">
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${col.dot}`} aria-hidden />
-                        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">{col.label}</span>
-                        <span className="text-xs text-zinc-400 dark:text-zinc-600 ml-auto shrink-0">{col.cards.length}</span>
-                      </div>
-                      <div className="space-y-2">
-                        {col.cards.map(card => (
-                          <div
-                            key={card.company}
-                            className="bg-white dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 rounded-lg p-2.5 cursor-default hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors"
-                          >
-                            <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200 leading-tight">{card.company}</p>
-                            <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-tight mt-0.5 truncate">{card.role}</p>
-                            <p className="text-xs text-zinc-300 dark:text-zinc-600 font-mono mt-2">{card.date}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+              {/* Table mockup */}
+              <div className="rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
+                {/* Filter pills */}
+                <div className="flex items-center gap-1.5 px-3 py-2.5 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/30 flex-wrap">
+                  {PIPELINE_STATUSES.map(({ status, count }) => (
+                    <span
+                      key={status}
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                        status === 'applied'
+                          ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 font-medium'
+                          : 'text-zinc-400 dark:text-zinc-500 border-zinc-200 dark:border-zinc-700'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[status]}`} aria-hidden />
+                      {STATUS_LABELS[status]}
+                      <span className="opacity-60">{count}</span>
+                    </span>
                   ))}
+                </div>
+
+                {/* Mini table */}
+                <table className="w-full text-xs border-collapse bg-white dark:bg-zinc-950">
+                  <thead>
+                    <tr className="border-b border-zinc-100 dark:border-zinc-800/60">
+                      <th className="text-left px-3 py-2 text-zinc-400 dark:text-zinc-500 font-medium w-8" />
+                      <th className="text-left px-3 py-2 text-zinc-400 dark:text-zinc-500 font-medium">Company</th>
+                      <th className="text-left px-3 py-2 text-zinc-400 dark:text-zinc-500 font-medium">Status</th>
+                      <th className="text-left px-3 py-2 text-zinc-400 dark:text-zinc-500 font-medium font-mono">Applied ↓</th>
+                      <th className="text-left px-3 py-2 text-zinc-400 dark:text-zinc-500 font-medium hidden sm:table-cell">Next step</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800/40">
+                    {TABLE_PREVIEW_APPS.map((app, i) => (
+                      <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors cursor-default">
+                        <td className="px-3 py-2.5">
+                          <div className="w-6 h-6 rounded bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-semibold text-zinc-400 dark:text-zinc-500 select-none">
+                            {app.company.charAt(0)}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <p className="font-medium text-zinc-700 dark:text-zinc-300">{app.company}</p>
+                          <p className="text-zinc-400 dark:text-zinc-500 text-xs mt-0.5">{app.role}</p>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-xs ${STATUS_BADGE[app.status]}`}>
+                            <span className={`w-1 h-1 rounded-full shrink-0 ${STATUS_DOT[app.status]}`} aria-hidden />
+                            {STATUS_LABELS[app.status]}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-zinc-400 dark:text-zinc-500 font-mono">{app.applied}</td>
+                        <td className="px-3 py-2.5 text-zinc-400 dark:text-zinc-500 hidden sm:table-cell">
+                          {app.next ? (
+                            <span className="text-amber-600 dark:text-amber-400 font-medium">{app.next}</span>
+                          ) : (
+                            <span className="opacity-30">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="px-3 py-2 border-t border-zinc-100 dark:border-zinc-800/60 bg-zinc-50/60 dark:bg-zinc-900/30">
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">24 applications · filtered to Applied</span>
                 </div>
               </div>
             </div>
@@ -399,7 +443,7 @@ export default function Page() {
           {/* F2 — Analytics */}
           <FadeIn delay={50}>
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
-              {/* Chart mockup — left */}
+              {/* Chart mockup */}
               <div className="rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50 dark:bg-zinc-900/40 p-5 order-2 md:order-1">
                 <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-5">Response rate by week</p>
 
@@ -457,7 +501,7 @@ export default function Page() {
                   See if your resume is actually working.
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  Track response rates week over week. Break down by company size, role type, or referral source. Stop guessing whether it's you or the market.
+                  Track response rates week over week. Break down by company size, role type, or referral source. Stop guessing whether it&apos;s you or the market.
                 </p>
               </div>
             </div>
@@ -474,7 +518,7 @@ export default function Page() {
                   Never forget a follow-up again.
                 </h2>
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  Set follow-up dates when you apply. Tracksy reminds you 48 hours before, with a pre-written template you can edit. No more "wait, did I hear back from them?"
+                  Set follow-up dates when you apply. Tracksy reminds you 48 hours before, with a pre-written template you can edit. No more &quot;wait, did I hear back from them?&quot;
                 </p>
               </div>
 
@@ -487,7 +531,7 @@ export default function Page() {
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Stripe — Technical Interview</p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Jan 28, 2:00 PM EST · Systems Design</p>
                     </div>
-                    <Pill status="interview" />
+                    <StatusBadge status="interview" />
                   </div>
 
                   <div className="pt-3 border-t border-amber-200/40 dark:border-amber-800/40">
@@ -496,14 +540,14 @@ export default function Page() {
                       {CHECKLIST.map(item => (
                         <div key={item.task} className="flex items-center gap-2 text-xs">
                           <span
-                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 text-xs leading-none ${
+                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 leading-none ${
                               item.done
                                 ? 'bg-amber-500 border-amber-500 text-white'
                                 : 'border-zinc-300 dark:border-zinc-600'
                             }`}
                             aria-hidden
                           >
-                            {item.done ? '✓' : ''}
+                            {item.done && <HugeiconsIcon icon={Tick01Icon} size={8} strokeWidth={3} />}
                           </span>
                           <span className={item.done ? 'text-zinc-400 dark:text-zinc-500 line-through' : 'text-zinc-600 dark:text-zinc-300'}>
                             {item.task}
@@ -521,7 +565,7 @@ export default function Page() {
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Anthropic — Offer deadline</p>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Feb 3 · Respond or negotiate</p>
                     </div>
-                    <Pill status="offer" />
+                    <StatusBadge status="offer" />
                   </div>
                 </div>
               </div>
@@ -530,7 +574,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ── Pricing ── */}
+      {/* Pricing */}
       <section id="pricing" className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-24">
         <FadeIn className="max-w-6xl mx-auto px-6">
           <div className="mb-12">
@@ -560,7 +604,7 @@ export default function Page() {
               <ul className="space-y-2.5" role="list">
                 {[
                   'Up to 50 active applications',
-                  'Pipeline view (kanban board)',
+                  'Table pipeline with status filters',
                   'Basic deadline reminders via email',
                   'CSV export',
                   '30-day activity history',
@@ -614,7 +658,7 @@ export default function Page() {
         </FadeIn>
       </section>
 
-      {/* ── FAQ ── */}
+      {/* FAQ */}
       <section id="faq" className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-24">
         <FadeIn className="max-w-6xl mx-auto px-6">
           <div className="mb-12">
@@ -632,30 +676,40 @@ export default function Page() {
         </FadeIn>
       </section>
 
-      {/* ── Footer ── */}
+      {/* CTA strip */}
+      <section className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-20">
+        <FadeIn className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
+            Your next job starts with staying organized.
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm mx-auto">
+            Free to start. No credit card. Set up in under two minutes.
+          </p>
+          <a
+            href="/sign-up"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-sm font-medium transition-colors shadow-sm"
+          >
+            Start tracking for free
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+          </a>
+        </FadeIn>
+      </section>
+
+      {/* Footer */}
       <footer className="border-t border-zinc-200/60 dark:border-zinc-800/60 py-16">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 md:col-span-1">
-              <p className="font-medium text-sm tracking-tight text-zinc-900 dark:text-zinc-100 mb-2">Tracksy</p>
+              <p className="font-semibold text-sm tracking-tight text-zinc-900 dark:text-zinc-100 mb-2">Tracksy</p>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed max-w-48">
                 A focused job application tracker for people who are serious about their search.
               </p>
             </div>
 
             {[
-              {
-                heading: 'Product',
-                links: ['Features', 'Pricing', 'Changelog', 'Roadmap'],
-              },
-              {
-                heading: 'Company',
-                links: ['About', 'Blog', 'Docs', 'Status'],
-              },
-              {
-                heading: 'Legal',
-                links: ['Privacy', 'Terms', 'Cookie policy'],
-              },
+              { heading: 'Product', links: ['Features', 'Pricing', 'Changelog', 'Roadmap'] },
+              { heading: 'Company', links: ['About', 'Blog', 'Docs', 'Status'] },
+              { heading: 'Legal',   links: ['Privacy', 'Terms', 'Cookie policy'] },
             ].map(col => (
               <div key={col.heading}>
                 <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">
@@ -676,12 +730,9 @@ export default function Page() {
 
           <div className="pt-6 border-t border-zinc-200/60 dark:border-zinc-800/60 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Built by a developer who got tired of losing track. →{' '}
-              <a href="#" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
-                @yourhandle
-              </a>
+              Built by a developer who got tired of losing track.
             </p>
-            <p className="text-xs text-zinc-300 dark:text-zinc-700 font-mono">© 2025 Tracksy</p>
+            <p className="text-xs text-zinc-300 dark:text-zinc-700 font-mono">© 2026 Tracksy</p>
           </div>
         </div>
       </footer>

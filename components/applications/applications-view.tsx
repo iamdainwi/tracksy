@@ -2,31 +2,17 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon, Add01Icon } from '@hugeicons/core-free-icons'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { KanbanBoard } from '@/components/kanban/board'
+import { ApplicationsTable } from './data-table'
 import { MobileListView } from './mobile-list-view'
-import { STATUSES } from '@/lib/status'
 import type { Application, ApplicationStatus } from '@/lib/db/schema'
-import { updateApplicationStatusAction } from '@/app/(dashboard)/dashboard/applications/actions'
-
-function groupByStatus(apps: Application[]) {
-  const map = Object.fromEntries(
-    STATUSES.map((s) => [s, [] as Application[]])
-  ) as Record<ApplicationStatus, Application[]>
-  for (const app of apps) map[app.status].push(app)
-  return map
-}
 
 export function ApplicationsView({ initialApps }: { initialApps: Application[] }) {
   const [apps, setApps] = useState(initialApps)
   const [query, setQuery] = useState('')
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [overId, setOverId] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     if (!query.trim()) return apps
@@ -38,53 +24,9 @@ export function ApplicationsView({ initialApps }: { initialApps: Application[] }
     )
   }, [apps, query])
 
-  // Shared optimistic status change (used by both list and kanban)
   const handleStatusChange = useCallback((id: string, status: ApplicationStatus) => {
     setApps((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)))
   }, [])
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id as string)
-  }, [])
-
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    setOverId(event.over?.id as string ?? null)
-  }, [])
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event
-      setActiveId(null)
-      setOverId(null)
-      if (!over) return
-
-      const activeApp = apps.find((a) => a.id === active.id)
-      if (!activeApp) return
-
-      const overStatus = STATUSES.includes(over.id as ApplicationStatus)
-        ? (over.id as ApplicationStatus)
-        : apps.find((a) => a.id === over.id)?.status
-
-      if (!overStatus) return
-
-      if (activeApp.status !== overStatus) {
-        handleStatusChange(activeApp.id, overStatus)
-        updateApplicationStatusAction(activeApp.id, overStatus)
-      } else {
-        const col = groupByStatus(apps)[overStatus]
-        const oldIdx = col.findIndex((a) => a.id === active.id)
-        const newIdx = col.findIndex((a) => a.id === over.id)
-        if (oldIdx !== newIdx) {
-          const reordered = arrayMove(col, oldIdx, newIdx)
-          setApps((prev) => [
-            ...prev.filter((a) => a.status !== overStatus),
-            ...reordered,
-          ])
-        }
-      }
-    },
-    [apps, handleStatusChange]
-  )
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -110,7 +52,6 @@ export function ApplicationsView({ initialApps }: { initialApps: Application[] }
           <span className="text-sm text-muted-foreground hidden sm:block tabular-nums">
             {filtered.length} / {apps.length}
           </span>
-          {/* Desktop add button — FAB handles mobile */}
           <Button asChild size="sm" className="hidden md:inline-flex">
             <Link href="/dashboard/applications/new">
               <HugeiconsIcon icon={Add01Icon} size={14} strokeWidth={2} />
@@ -125,16 +66,9 @@ export function ApplicationsView({ initialApps }: { initialApps: Application[] }
         <MobileListView apps={filtered} onStatusChange={handleStatusChange} />
       </div>
 
-      {/* Desktop: kanban board */}
-      <div className="hidden md:block px-6 pt-4 flex-1">
-        <KanbanBoard
-          apps={filtered}
-          activeId={activeId}
-          overId={overId}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        />
+      {/* Desktop: data table */}
+      <div className="hidden md:block px-6 pt-4 pb-8 flex-1 overflow-y-auto">
+        <ApplicationsTable apps={filtered} onStatusChange={handleStatusChange} />
       </div>
     </div>
   )

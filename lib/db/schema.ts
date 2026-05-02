@@ -3,6 +3,8 @@ import {
   pgEnum,
   uuid,
   text,
+  boolean,
+  integer,
   timestamp,
   index,
 } from 'drizzle-orm/pg-core'
@@ -52,8 +54,26 @@ export const applications = pgTable(
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
   (t) => [
+    index('applications_user_idx').on(t.userId),
     index('applications_user_status_idx').on(t.userId, t.status),
     index('applications_user_applied_idx').on(t.userId, t.appliedAt),
+  ]
+)
+
+export const checklistItems = pgTable(
+  'checklist_items',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    applicationId: uuid('application_id')
+      .notNull()
+      .references(() => applications.id, { onDelete: 'cascade' }),
+    text: text('text').notNull(),
+    done: boolean('done').notNull().default(false),
+    position: integer('position').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (t) => [
+    index('checklist_app_pos_idx').on(t.applicationId, t.position),
   ]
 )
 
@@ -69,6 +89,7 @@ export const reminders = pgTable(
   },
   (t) => [
     index('reminders_scheduled_idx').on(t.scheduledFor),
+    index('reminders_unsent_idx').on(t.applicationId, t.sentAt),
   ]
 )
 
@@ -78,3 +99,4 @@ export type ApplicationStatus = (typeof applicationStatus.enumValues)[number]
 export type ApplicationSource = (typeof applicationSource.enumValues)[number]
 export type Reminder = typeof reminders.$inferSelect
 export type User = typeof users.$inferSelect
+export type ChecklistItem = typeof checklistItems.$inferSelect

@@ -96,3 +96,24 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock
+
+# ============================================================================
+# Project-specific — never commit these
+# ============================================================================
+# Development planning docs
+plan.md
+
+# Copied documentation / reference files
+cleark_auth.md
+
+# AI coding assistant local config (Claude Code, Cursor, etc.)
+.claude/
+.cursor/
+.cursorignore
+.windsurfrules
+
+# Drizzle Studio local cache
+.drizzle/
+
+# pnpm workspace config (monorepo only — not needed for single-package repos)
+pnpm-workspace.yaml

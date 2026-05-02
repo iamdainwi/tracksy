@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { requireAuth } from '@/lib/auth'
 import {
   createApplication,
@@ -30,12 +30,14 @@ export async function createApplicationAction(formData: FormData) {
   })
 
   revalidatePath('/dashboard/applications')
+  revalidateTag(`analytics:${userId}`, 'max')
 }
 
 export async function updateApplicationStatusAction(id: string, status: ApplicationStatus) {
   const userId = await requireAuth()
   await updateApplication(id, userId, { status })
   revalidatePath('/dashboard/applications')
+  revalidateTag(`analytics:${userId}`, 'max')
 }
 
 export async function updateApplicationAction(id: string, formData: FormData) {
@@ -60,10 +62,12 @@ export async function updateApplicationAction(id: string, formData: FormData) {
 
   revalidatePath('/dashboard/applications')
   revalidatePath(`/dashboard/applications/${id}`)
+  revalidateTag(`analytics:${userId}`, 'max')
 }
 
 export async function deleteApplicationAction(id: string) {
   const userId = await requireAuth()
   await deleteApplication(id, userId)
   revalidatePath('/dashboard/applications')
+  revalidateTag(`analytics:${userId}`, 'max')
 }

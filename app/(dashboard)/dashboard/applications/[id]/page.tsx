@@ -2,21 +2,17 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { format } from 'date-fns'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Edit01Icon, Link01Icon, ArrowLeft01Icon } from '@hugeicons/core-free-icons'
 import { getApplicationById } from '@/lib/db/queries/applications'
+import { getChecklistItems } from '@/lib/db/queries/checklist'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { DeleteApplicationButton } from './delete-button'
-import { Edit01Icon, Link01Icon, ArrowLeft01Icon } from 'hugeicons-react'
+import { PrepChecklist } from './checklist'
+import { STATUS_CONFIG } from '@/lib/status'
+import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
-import type { ApplicationStatus } from '@/lib/db/schema'
-
-const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  applied:   'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800/50',
-  screening: 'bg-violet-50 text-violet-700 border-violet-200/80 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800/50',
-  interview: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50',
-  offer:     'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50',
-  rejected:  'bg-zinc-100 text-zinc-500 border-zinc-200/80 dark:bg-zinc-800/40 dark:text-zinc-500 dark:border-zinc-700/50',
-  ghosted:   'bg-zinc-100 text-zinc-400 border-zinc-200/80 dark:bg-zinc-800/40 dark:text-zinc-500 dark:border-zinc-700/50',
-}
 
 export async function generateMetadata({
   params,
@@ -40,40 +36,54 @@ export default async function ApplicationDetailPage({
   if (!userId) redirect('/sign-in')
 
   const { id } = await params
-  const app = await getApplicationById(id, userId)
+  const [app, checklistItems] = await Promise.all([
+    getApplicationById(id, userId),
+    getChecklistItems(id, userId),
+  ])
   if (!app) notFound()
+
+  const config = STATUS_CONFIG[app.status]
 
   return (
     <div className="max-w-2xl mx-auto px-4 md:px-6 py-8">
-      <div className="flex items-center gap-3 mb-8">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 mb-8 text-sm">
         <Link
           href="/dashboard/applications"
-          className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft01Icon className="w-4 h-4" aria-hidden />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2} />
         </Link>
-        <span className="text-xs text-zinc-400 dark:text-zinc-500">/</span>
-        <span className="text-sm text-zinc-500 dark:text-zinc-400">{app.company}</span>
+        <span className="text-muted-foreground/40">/</span>
+        <span className="text-muted-foreground">{app.company}</span>
       </div>
 
+      {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{app.company}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{app.role}</p>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shrink-0 select-none">
+            <span className="text-sm font-semibold text-accent-foreground">
+              {app.company.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold">{app.company}</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">{app.role}</p>
+          </div>
         </div>
-        <span
-          className={`inline-flex items-center px-2.5 py-1 rounded border text-xs font-mono font-medium shrink-0 ${STATUS_STYLES[app.status]}`}
-        >
-          {app.status}
-        </span>
+        <Badge variant="outline" className="gap-1.5 shrink-0">
+          <span className={cn('w-1.5 h-1.5 rounded-full', config.dot)} />
+          {config.label}
+        </Badge>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      {/* Meta grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-5 mb-8 p-4 rounded-xl border bg-muted/20">
         {[
-          { label: 'Applied', value: format(new Date(app.appliedAt), 'MMM d, yyyy') },
-          { label: 'Source', value: app.source?.replace('_', ' ') ?? '—' },
-          { label: 'Location', value: app.location ?? '—' },
-          { label: 'Salary', value: app.salary ?? '—' },
+          { label: 'Applied',   value: format(new Date(app.appliedAt), 'MMM d, yyyy') },
+          { label: 'Source',    value: app.source?.replace('_', ' ') ?? '—' },
+          { label: 'Location',  value: app.location ?? '—' },
+          { label: 'Salary',    value: app.salary ?? '—' },
           {
             label: 'Next step',
             value: app.nextStepAt
@@ -82,10 +92,10 @@ export default async function ApplicationDetailPage({
           },
         ].map(({ label, value }) => (
           <div key={label}>
-            <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
               {label}
             </p>
-            <p className="text-sm text-zinc-700 dark:text-zinc-300 capitalize">{value}</p>
+            <p className="text-sm capitalize">{value}</p>
           </div>
         ))}
       </div>
@@ -97,28 +107,38 @@ export default async function ApplicationDetailPage({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-500 hover:underline underline-offset-2 mb-8"
         >
-          <Link01Icon className="w-3.5 h-3.5" aria-hidden />
+          <HugeiconsIcon icon={Link01Icon} size={13} strokeWidth={2} />
           View job posting
         </a>
       )}
 
+      {/* Prep checklist */}
+      <div className="mb-8 p-4 rounded-xl border">
+        <PrepChecklist
+          applicationId={app.id}
+          initialItems={checklistItems ?? []}
+        />
+      </div>
+
+      {/* Notes */}
       {app.notes && (
         <div className="mb-8">
-          <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
             Notes
           </p>
-          <div className="bg-zinc-50 dark:bg-zinc-900/40 rounded-lg border border-zinc-200/60 dark:border-zinc-800/60 p-4">
-            <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-muted/20 rounded-xl border p-4">
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">
               {app.notes}
             </p>
           </div>
         </div>
       )}
 
-      <div className="flex items-center gap-3 pt-4 border-t border-zinc-200/60 dark:border-zinc-800/60">
+      {/* Actions */}
+      <div className="flex items-center gap-3 pt-4 border-t">
         <Button asChild size="sm">
           <Link href={`/dashboard/applications/${app.id}/edit`}>
-            <Edit01Icon className="w-3.5 h-3.5" aria-hidden />
+            <HugeiconsIcon icon={Edit01Icon} size={13} strokeWidth={2} />
             Edit
           </Link>
         </Button>
